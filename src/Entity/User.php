@@ -11,6 +11,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -28,6 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @author Ryan Weaver <weaverryan@gmail.com>
  * @author Javier Eguiluz <javier.eguiluz@gmail.com>
+ * @method string getUserIdentifier()
  */
 class User implements UserInterface, \Serializable
 {
@@ -78,6 +81,22 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(type="json")
      */
     private $roles = [];
+
+    /**
+     * @ORM\ManyToMany(targetEntity=Group::class, inversedBy="users")
+     */
+    private $groups;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TopicComment::class, mappedBy="user", orphanRemoval=true)
+     */
+    private $topicComments;
+
+    public function __construct()
+    {
+        $this->groups = new ArrayCollection();
+        $this->topicComments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -185,5 +204,64 @@ class User implements UserInterface, \Serializable
     {
         // add $this->salt too if you don't use Bcrypt or Argon2i
         [$this->id, $this->username, $this->password] = unserialize($serialized, ['allowed_classes' => false]);
+    }
+
+    /**
+     * @return Collection|Group[]
+     */
+    public function getGroups(): Collection
+    {
+        return $this->groups;
+    }
+
+    public function addGroup(Group $group): self
+    {
+        if (!$this->groups->contains($group)) {
+            $this->groups[] = $group;
+        }
+
+        return $this;
+    }
+
+    public function removeGroup(Group $group): self
+    {
+        $this->groups->removeElement($group);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TopicComment[]
+     */
+    public function getTopicComments(): Collection
+    {
+        return $this->topicComments;
+    }
+
+    public function addTopicComment(TopicComment $topicComment): self
+    {
+        if (!$this->topicComments->contains($topicComment)) {
+            $this->topicComments[] = $topicComment;
+            $topicComment->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTopicComment(TopicComment $topicComment): self
+    {
+        if ($this->topicComments->removeElement($topicComment)) {
+            // set the owning side to null (unless already changed)
+            if ($topicComment->getUser() === $this) {
+                $topicComment->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __call($name, $arguments)
+    {
+        // TODO: Implement @method string getUserIdentifier()
     }
 }
