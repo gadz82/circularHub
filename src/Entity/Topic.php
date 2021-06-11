@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\TopicRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -54,9 +55,15 @@ class Topic
      */
     private $groups;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TopicComment::class, mappedBy="topic", orphanRemoval=true)
+     */
+    private $topicComments;
+
     public function __construct()
     {
         $this->groups = new ArrayCollection();
+        $this->topicComments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,24 +107,24 @@ class Topic
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getClosesAt(): ?\DateTimeInterface
+    public function getClosesAt(): ?DateTimeInterface
     {
         return $this->closesAt;
     }
 
-    public function setClosesAt(?\DateTimeInterface $closesAt): self
+    public function setClosesAt(?DateTimeInterface $closesAt): self
     {
         $this->closesAt = $closesAt;
 
@@ -164,5 +171,39 @@ class Topic
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection|TopicComment[]
+     */
+    public function getTopicComments(): Collection
+    {
+        return $this->topicComments;
+    }
+
+    public function addTopicComment(TopicComment $topicComment): self
+    {
+        if (!$this->topicComments->contains($topicComment)) {
+            $this->topicComments[] = $topicComment;
+            $topicComment->setTopic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTopicComment(TopicComment $topicComment): self
+    {
+        if ($this->topicComments->removeElement($topicComment)) {
+            // set the owning side to null (unless already changed)
+            if ($topicComment->getTopic() === $this) {
+                $topicComment->setTopic(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString(){
+        return $this->getId()." - ".$this->getTitle();
     }
 }

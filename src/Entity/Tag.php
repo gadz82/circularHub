@@ -12,6 +12,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 
 /**
  * @ORM\Entity()
@@ -23,7 +24,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @author Yonel Ceruto <yonelceruto@gmail.com>
  */
-class Tag implements \JsonSerializable
+class Tag implements JsonSerializable
 {
     /**
      * @var int

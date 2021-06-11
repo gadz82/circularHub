@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\AddressBookEntryRepository;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -61,6 +62,12 @@ class AddressBookEntry
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $nextUpdateAt;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AddressBook::class, inversedBy="addressBookEntries")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $addressBook;
 
     public function getId(): ?int
     {
@@ -139,38 +146,50 @@ class AddressBookEntry
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(?DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 
         return $this;
     }
 
-    public function getNextUpdateAt(): ?\DateTimeInterface
+    public function getNextUpdateAt(): ?DateTimeInterface
     {
         return $this->nextUpdateAt;
     }
 
-    public function setNextUpdateAt(?\DateTimeInterface $nextUpdateAt): self
+    public function setNextUpdateAt(?DateTimeInterface $nextUpdateAt): self
     {
         $this->nextUpdateAt = $nextUpdateAt;
+
+        return $this;
+    }
+
+    public function getAddressBook(): ?AddressBook
+    {
+        return $this->addressBook;
+    }
+
+    public function setAddressBook(?AddressBook $addressBook): self
+    {
+        $this->addressBook = $addressBook;
 
         return $this;
     }

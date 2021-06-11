@@ -24,9 +24,15 @@ class TopicComment
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="topicComments")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Topic::class, inversedBy="topicComments")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $topic;
 
     public function getId(): ?int
     {
@@ -45,6 +51,9 @@ class TopicComment
         return $this;
     }
 
+    /**
+     * @return User|null
+     */
     public function getUser(): ?User
     {
         return $this->user;
@@ -53,6 +62,25 @@ class TopicComment
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Topic|null
+     */
+    public function getTopic(): ?Topic
+    {
+        return $this->topic;
+    }
+
+    /**
+     * @param Topic|null $topic
+     * @return $this
+     */
+    public function setTopic(?Topic $topic): self
+    {
+        $this->topic = $topic;
 
         return $this;
     }
