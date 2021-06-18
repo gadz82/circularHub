@@ -8,4 +8,4 @@ homepage:
     defaults:
         template: default/homepage.html.twig
 api_login_check:
-    path: /it/api/login_check
+    path: /api/login_check

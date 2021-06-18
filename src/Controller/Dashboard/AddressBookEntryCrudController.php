@@ -4,6 +4,7 @@ namespace App\Controller\Dashboard;
 
 use App\Entity\AddressBookEntry;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 
 class AddressBookEntryCrudController extends AbstractCrudController
 {
@@ -12,14 +13,12 @@ class AddressBookEntryCrudController extends AbstractCrudController
         return AddressBookEntry::class;
     }
 
-    /*
+
     public function configureFields(string $pageName): iterable
     {
-        return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
-        ];
+        $fields = parent::configureFields($pageName);
+        $fields[] = AssociationField::new('addressBook');
+        return $fields;
     }
-    */
+
 }

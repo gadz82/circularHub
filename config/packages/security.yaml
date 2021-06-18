@@ -20,7 +20,7 @@ security:
             security: false
 
         login:
-            pattern: ^/it/api/login_check
+            pattern: ^/api/login_check
             stateless: true
             anonymous: true
             json_login:
@@ -29,7 +29,7 @@ security:
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         api:
-            pattern:   ^/it/api
+            pattern:   ^/api
             stateless: true
             anonymous: true
             json_login:
