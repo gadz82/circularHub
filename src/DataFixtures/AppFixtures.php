@@ -11,7 +11,10 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\AddressBook;
+use App\Entity\AddressBookEntry;
 use App\Entity\Comment;
+use App\Entity\Group;
 use App\Entity\Post;
 use App\Entity\Tag;
 use App\Entity\User;
@@ -36,25 +39,39 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
+        $this->loadGroups($manager);
         $this->loadUsers($manager);
         $this->loadTags($manager);
         $this->loadPosts($manager);
+        $this->loadAddressBooks($manager);
+        $this->loadAddressBooksEntries($manager);
+    }
+
+    private function loadGroups(ObjectManager $manager): void
+    {
+        foreach ($this->getGroupsData() as $groupTitle) {
+            $group = new Group();
+            $group->setTitle($groupTitle);
+            $manager->persist($group);
+            $this->addReference($groupTitle, $group);
+        }
+        $manager->flush();
+
     }
 
     private function loadUsers(ObjectManager $manager): void
     {
-        foreach ($this->getUserData() as [$fullname, $username, $password, $email, $roles]) {
+        foreach ($this->getUserData() as [$fullname, $username, $password, $email, $roles, $group]) {
             $user = new User();
             $user->setFullName($fullname);
             $user->setUsername($username);
             $user->setPassword($this->passwordEncoder->encodePassword($user, $password));
             $user->setEmail($email);
             $user->setRoles($roles);
-
+            $user->addGroup($this->getReference($group));
             $manager->persist($user);
             $this->addReference($username, $user);
         }
-
         $manager->flush();
     }
 
@@ -98,13 +115,60 @@ class AppFixtures extends Fixture
         $manager->flush();
     }
 
+    private function loadAddressBooks(ObjectManager $manager) : void
+    {
+        foreach($this->getAddressBooks() as [$title, $description]){
+            $addressBook = new AddressBook();
+            $addressBook->setTitle($title);
+            $addressBook->setDescription($description);
+            $manager->persist($addressBook);
+            $this->addReference($title, $addressBook);
+        }
+        $manager->flush();
+    }
+
+    private function loadAddressBooksEntries(ObjectManager $manager) : void
+    {
+        foreach ($this->getAddressBookEntries() as [$addressBook, $title, $description, $phone, $address, $notes, $createdAt, $updatedAt, $nextUpdateAt]){
+            $addressBookEntry = new AddressBookEntry();
+            $addressBookEntry->setAddressBook($addressBook);
+            $addressBookEntry->setTitle($title);
+            $addressBookEntry->setDescription($description);
+            $addressBookEntry->setPhone($phone);
+            $addressBookEntry->setAddress($address);
+            $addressBookEntry->setNotes($notes);
+            $addressBookEntry->setCreatedAt($createdAt);
+            $addressBookEntry->setUpdatedAt($updatedAt);
+            $addressBookEntry->setNextUpdateAt($nextUpdateAt);
+            $manager->persist($addressBookEntry);
+        }
+        $manager->flush();
+
+    }
+
+    private function getGroupsData(): array
+    {
+        return [
+            'Common',
+            'Anci',
+            'Prociv',
+            'Federsanità',
+            'Ludopatia',
+            'Villa Umbra'
+        ];
+    }
+
     private function getUserData(): array
     {
         return [
             // $userData = [$fullname, $username, $password, $email, $roles];
-            ['Jane Doe', 'jane_admin', 'kitten', 'jane_admin@symfony.com', ['ROLE_ADMIN']],
-            ['Tom Doe', 'tom_admin', 'kitten', 'tom_admin@symfony.com', ['ROLE_ADMIN']],
-            ['John Doe', 'john_user', 'kitten', 'john_user@symfony.com', ['ROLE_USER']],
+            ['Jane Doe', 'jane_admin', 'kitten', 'jane_admin@symfony.com', ['ROLE_ADMIN'], 'Common'],
+            ['Tom Doe', 'tom_admin', 'kitten', 'tom_admin@symfony.com', ['ROLE_ADMIN'], 'Anci'],
+            ['Francesco Marchesini', 'francesco', 'francesco', 'francesco@symfony.com', ['ROLE_ADMIN'], 'Prociv'],
+            ['Francesca Procacci', 'francesca', 'francesca', 'francesca@symfony.com', ['ROLE_USER'], 'Federsanità'],
+            ['Daniele Benedetti', 'daniele', 'daniele', 'daniele@symfony.com', ['ROLE_USER'], 'Ludopatia'],
+            ['Silvio Ranieri', 'silvio', 'silvio', 'silvio@symfony.com', ['ROLE_USER'], 'Villa Umbra'],
+            ['Jhon User', 'john_user', 'john_user', 'john_user@symfony.it', ['ROLE_USER'], 'Villa Umbra'],
         ];
     }
 
@@ -239,5 +303,61 @@ MARKDOWN;
         $selectedTags = array_slice($tagNames, 0, random_int(2, 4));
 
         return array_map(function ($tagName) { return $this->getReference('tag-'.$tagName); }, $selectedTags);
+    }
+
+    private function getAddressBooks() : array
+    {
+        return[
+            ['Comune di Marsciano','Riferimenti Comune di Marsciano'],
+            ['Comune di Gubbio','Riferimenti Comune di Gubbio'],
+            ['Comune di Cesi','Riferimenti Comune di Cesi'],
+            ['Comune di Perugia','Riferimenti Comune di Perugia'],
+            ['Protezione Civile Regione Umbria','Servizio di Protezione Civile'],
+            ['Volontari Bastia','Volontari di protezione Civile del comune di Bastia'],
+            ['Centro Sociale','Riferimenti Centro Sociale']
+        ];
+    }
+
+    public function getAddressBookEntries() : iterable
+    {
+        foreach($this->getAddressBooks() as [$title, $desc]){
+            $limit = rand(5,20);
+            $i = 0;
+            do {
+                yield array_merge([$this->getReference($title)], $this->getRandomEntry());
+                $i++;
+            } while ($i < $limit);
+        }
+    }
+
+    public function getRandomEntry() : array
+    {
+        $titles = ['Presidente', 'Responsabile', 'Tecnico', 'Responsabile', 'Referente', 'Dirigente', 'Rappresentante', 'Ufficio', 'Coordinatore'];
+        $descriptions = ['Con mandato ad interim', 'Designato dal sindaco', 'Come consulente esternp', 'Riferito al gruppo di lavoro', 'Responsabile unità territoriale', 'Distrettualmente designato', 'Con incarico politico', 'Revisore ad interim', 'Referente area territoriale'];
+        $phones = [];
+        $i = 0;
+        do {
+            $phones[] = rand(1111111,9999999);
+            $i++;
+        } while ($i < 9);
+
+        $emails = ['name@domain.it', 'surname@domain2.com', 'hello@example.net', 'mymail@emergenza.net', 'acp@hotmail.it', 'dummy@gmail.com', 'name.surname@subdomain.domain.lt', 'jhon@doe.it', 'email@myemail.it'];
+        $addresses = ['Sp 217, 06134', 'Via Chiusa 17, 06134, Perugai', 'Fraz.Fratticiola, 23, 016131, Perugia', 'Piazza Dante, SNC, 06050, Marsciano', 'Via della ceramica 177, 06045, Deruta', 'Località Cesina, 06050, Cesi', 'Via Strada Piazza 99, 04444, Località', 'Via Osteria dei Cipressi 12, 06124, San Martino in Campo', 'Fraz.Mocaiana 16, 06024, Gubbio'];
+        $notes = $this->getPhrases();
+        shuffle($titles);
+        shuffle($descriptions);
+        shuffle($emails);
+        shuffle($addresses);
+        shuffle($notes);
+        return [
+            $titles[0],
+            $descriptions[0],
+            $phones[0],
+            $emails[0],
+            $notes[0],
+            (new DateTime('now')),
+            null,
+            (new DateTime('now'))->add(new \DateInterval('P'.rand(20,100).'D'))
+        ];
     }
 }

@@ -30,7 +30,8 @@ class TopicCrudController extends AbstractCrudController
         return [
             TextField::new('title'),
             TextEditorField::new('description')->hideOnIndex(),
-            AssociationField::new('topicComments')->hideOnIndex()->hideOnForm()
+            AssociationField::new('topicComments')->hideOnIndex()->hideOnForm(),
+            AssociationField::new('topicParticipations')->hideOnIndex()
 
         ];
     }

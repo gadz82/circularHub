@@ -16,8 +16,6 @@ use JsonSerializable;
 
 /**
  * @ORM\Entity()
- * @ORM\Table(name="symfony_demo_tag")
- *
  * Defines the properties of the Tag entity to represent the post tags.
  *
  * See https://symfony.com/doc/current/doctrine.html#creating-an-entity-class

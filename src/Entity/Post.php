@@ -16,12 +16,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\PostRepository")
- * @ORM\Table(name="symfony_demo_post")
  * @UniqueEntity(fields={"slug"}, errorPath="title", message="post.slug_unique")
  *
  * Defines the properties of the Post entity to represent the blog posts.
@@ -174,7 +174,7 @@ class Post
         return $this->author;
     }
 
-    public function setAuthor(User $author): void
+    public function setAuthor(UserInterface $author): void
     {
         $this->author = $author;
     }

@@ -5,12 +5,9 @@ namespace App\Controller\Api;
 use App\Entity\Post;
 use App\Form\PostType;
 use App\Repository\PostRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,7 +27,7 @@ class BlogController extends AbstractFOSRestController{
     /**
      * @Rest\Get("/api/blog/{id}", methods="GET", name="api_blog_get_item")
      */
-    public function listAction(Post $post) : Response
+    public function detailAction(Post $post) : Response
     {
         $view = $this->view($post, 200);
         $view->getContext()->setGroups(['blog_item']);

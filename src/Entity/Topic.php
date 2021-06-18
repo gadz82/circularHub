@@ -60,10 +60,16 @@ class Topic
      */
     private $topicComments;
 
+    /**
+     * @ORM\OneToMany(targetEntity=TopicParticipation::class, mappedBy="topic", orphanRemoval=true)
+     */
+    private $topicParticipations;
+
     public function __construct()
     {
         $this->groups = new ArrayCollection();
         $this->topicComments = new ArrayCollection();
+        $this->topicParticipations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -155,19 +161,6 @@ class Topic
     {
         if (!$this->groups->contains($group)) {
             $this->groups[] = $group;
-            $group->setTopic($this);
-        }
-
-        return $this;
-    }
-
-    public function removeGroup(Group $group): self
-    {
-        if ($this->groups->removeElement($group)) {
-            // set the owning side to null (unless already changed)
-            if ($group->getTopic() === $this) {
-                $group->setTopic(null);
-            }
         }
 
         return $this;
@@ -203,7 +196,38 @@ class Topic
         return $this;
     }
 
-    public function __toString(){
+    public function __toString() : string
+    {
         return $this->getId()." - ".$this->getTitle();
+    }
+
+    /**
+     * @return Collection|TopicParticipation[]
+     */
+    public function getTopicParticipations(): Collection
+    {
+        return $this->topicParticipations;
+    }
+
+    public function addTopicParticipation(TopicParticipation $topicParticipant): self
+    {
+        if (!$this->topicParticipations->contains($topicParticipant)) {
+            $this->topicParticipations[] = $topicParticipant;
+            $topicParticipant->setTopic($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTopicParticipation(TopicParticipation $topicParticipant): self
+    {
+        if ($this->topicParticipations->removeElement($topicParticipant)) {
+            // set the owning side to null (unless already changed)
+            if ($topicParticipant->getTopic() === $this) {
+                $topicParticipant->setTopic(null);
+            }
+        }
+
+        return $this;
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TopicCommentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -33,6 +35,16 @@ class TopicComment
      * @ORM\JoinColumn(nullable=false)
      */
     private $topic;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TopicCommentAttachment::class, mappedBy="topicComment", orphanRemoval=true)
+     */
+    private $topicCommentAttachments;
+
+    public function __construct()
+    {
+        $this->topicCommentAttachments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -81,6 +93,36 @@ class TopicComment
     public function setTopic(?Topic $topic): self
     {
         $this->topic = $topic;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|TopicCommentAttachment[]
+     */
+    public function getTopicCommentAttachments(): Collection
+    {
+        return $this->topicCommentAttachments;
+    }
+
+    public function addTopicCommentAttachment(TopicCommentAttachment $topicCommentAttachment): self
+    {
+        if (!$this->topicCommentAttachments->contains($topicCommentAttachment)) {
+            $this->topicCommentAttachments[] = $topicCommentAttachment;
+            $topicCommentAttachment->setTopicComment($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTopicCommentAttachment(TopicCommentAttachment $topicCommentAttachment): self
+    {
+        if ($this->topicCommentAttachments->removeElement($topicCommentAttachment)) {
+            // set the owning side to null (unless already changed)
+            if ($topicCommentAttachment->getTopicComment() === $this) {
+                $topicCommentAttachment->setTopicComment(null);
+            }
+        }
 
         return $this;
     }

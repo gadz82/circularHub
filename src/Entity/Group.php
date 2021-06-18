@@ -31,13 +31,14 @@ class Group
     private $users;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Topic::class, inversedBy="groups")
+     * @ORM\OneToMany(targetEntity=TopicParticipation::class, mappedBy="userGroup", orphanRemoval=true)
      */
-    private $topic;
+    private $topicParticipations;
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->topicParticipations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,19 +85,37 @@ class Group
         return $this;
     }
 
-    public function getTopic(): ?Topic
-    {
-        return $this->topic;
+    public function __toString(){
+        return $this->getId()." - ".$this->getTitle();
     }
 
-    public function setTopic(?Topic $topic): self
+    /**
+     * @return Collection|TopicParticipation[]
+     */
+    public function getTopicParticipations(): Collection
     {
-        $this->topic = $topic;
+        return $this->topicParticipations;
+    }
+
+    public function addTopicParticipation(TopicParticipation $topicParticipant): self
+    {
+        if (!$this->topicParticipations->contains($topicParticipant)) {
+            $this->topicParticipations[] = $topicParticipant;
+            $topicParticipant->setUserGroup($this);
+        }
 
         return $this;
     }
 
-    public function __toString(){
-        return $this->getId()." - ".$this->getTitle();
+    public function removeTopicParticipation(TopicParticipation $topicParticipant): self
+    {
+        if ($this->topicParticipations->removeElement($topicParticipant)) {
+            // set the owning side to null (unless already changed)
+            if ($topicParticipant->getUserGroup() === $this) {
+                $topicParticipant->setUserGroup(null);
+            }
+        }
+
+        return $this;
     }
 }
