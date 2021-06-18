@@ -18,7 +18,7 @@ class AuthenticationTest extends WebTestCase
     public function testIndex(): string
     {
         $client = self::createClient();
-        $client->request('POST', '/it/api/login_check', [], [], ['HTTP_ACCEPT' => 'application/json'], json_encode([
+        $client->request('POST', '/api/login_check', [], [], ['HTTP_ACCEPT' => 'application/json'], json_encode([
             "username" => "jane_admin",
             "password" => "kitten"
         ]));
@@ -40,7 +40,7 @@ class AuthenticationTest extends WebTestCase
         $client = self::createClient();
         $client->request(
             'POST',
-            '/it/api/blogs',
+            '/api/blogs',
             [],
             [],
             [
